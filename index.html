@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HexIt</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Lucide Icons thing -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- color Thief Library (imp for color extraction) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.4.0/color-thief.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <i data-lucide="palette"></i>
+            <h1>HexIt</h1>
+        </div>
+        <div class="header-actions">
+            <button class="btn-icon" title="Help">
+                <i data-lucide="help-circle"></i>
+            </button>
+            <button class="btn-icon" title="Settings">
+                <i data-lucide="settings"></i>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="upload-container" id="upload-container">
+                <div class="upload-section">
+                    <h2>Extract Colors from Images</h2>
+                    <p>Upload an image to extract a beautiful color palette</p>
+                </div>
+
+                <div id="upload-area" class="upload-area">
+                    <div class="upload-area-icon">
+                        <i data-lucide="image-plus"></i>
+                    </div>
+                    <p class="upload-text">
+                        Drag & drop an image or click to browse
+                    </p>
+                    <p class="upload-text">
+                        <span class="file-type-icons">
+                            <i data-lucide="file-image"></i>
+                        </span>
+                        Supports JPG, PNG, WebP, and even GIF
+                    </p>
+                    <input type="file" id="file-input" accept="image/*">
+                </div>
+
+                <div id="image-preview" class="image-preview">
+                    <img id="preview-img" src="" alt="Image preview">
+                    <button id="remove-image" class="btn-close" aria-label="Remove image">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+
+                <div id="error-message"></div>
+
+                <button id="extract-button" class="btn" disabled>
+                    <div class="btn-content">
+                        <div class="btn-icon">
+                            <i data-lucide="wand"></i>
+                        </div>
+                        <span>Hex It!</span>
+                    </div>
+                </button>
+            </div>
+            <div class="results-container">
+                <div id="empty-state" class="empty-state">
+                    <div class="empty-state-icon">
+                        <i data-lucide="image"></i>
+                    </div>
+                    <h3>No Image Selected</h3>
+                    <p>Upload an image to extract its color palette</p>
+                    <div class="empty-state-tips">
+                        <div class="tip-item">
+                            <i data-lucide="lightbulb"></i>
+                            <span>Try colorful photos for best results</span>
+                        </div>
+                        <div class="tip-item">
+                            <i data-lucide="zap"></i>
+                            <span>Higher resolution images work better</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="results-tabs" style="display: none;">
+                    <div class="tab-container">
+                        <div class="tab active" data-tab="palette">
+                            <i data-lucide="palette"></i>
+                            <span>Palette</span>
+                        </div>
+                        <div class="tab" data-tab="harmonies">
+                            <i data-lucide="circle-dashed"></i>
+                            <span>Harmonies</span>
+                        </div>
+                        <div class="tab" data-tab="details">
+                            <i data-lucide="info"></i>
+                            <span>Details</span>
+                        </div>
+                        <div class="tab" data-tab="export">
+                            <i data-lucide="code"></i>
+                            <span>Export</span>
+                        </div>
+                    </div>
+                    <div class="tab-panel active" data-tab-panel="palette">
+                        <div id="dominant-color" class="dominant-color">
+                            <div class="color-header">
+                                <h3 class="color-title">Dominant Color</h3>
+                                <button id="copy-dominant" class="btn btn-secondary" aria-label="Copy dominant color code">
+                                    <div class="btn-content">
+                                        <div class="btn-icon">
+                                            <i data-lucide="clipboard-copy"></i>
+                                        </div>
+                                        <span>Copy</span>
+                                    </div>
+                                </button>
+                            </div>
+                            <div id="dominant-color-preview" class="color-preview"></div>
+                            <div id="dominant-color-code" class="color-code">#FFFFFF</div>
+                        </div>
+
+                        <div id="palette-container" class="palette-container">
+                            <div class="color-header">
+                                <h3 class="color-title">Color Palette</h3>
+                                <div class="btn-group">
+                                    <button id="copy-palette" class="btn btn-secondary" aria-label="Copy all colors">
+                                        <div class="btn-content">
+                                            <div class="btn-icon">
+                                                <i data-lucide="clipboard-copy"></i>
+                                            </div>
+                                            <span>Copy All</span>
+                                        </div>
+                                    </button>
+                                    <button id="save-palette" class="btn btn-accent" aria-label="Save palette">
+                                        <div class="btn-content">
+                                            <div class="btn-icon">
+                                                <i data-lucide="bookmark"></i>
+                                            </div>
+                                            <span>Save</span>
+                                        </div>
+                                    </button>
+                                    <button id="share-palette" class="btn btn-success" aria-label="Share palette">
+                                        <div class="btn-content">
+                                            <div class="btn-icon">
+                                                <i data-lucide="share-2"></i>
+                                            </div>
+                                            <span>Share</span>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="palette-options">
+                                <button class="option-button active" data-count="8">8 Colors</button>
+                                <button class="option-button" data-count="12">12 Colors</button>
+                                <button class="option-button" data-count="16">16 Colors</button>
+                                <button class="option-button" data-count="6" data-quality="high">High Quality</button>
+                            </div>
+                            <div id="palette" class="palette"></div>
+                        </div>
+                    </div>
+
+                    <!-- Harmonies Tab -->
+                    <div class="tab-panel" data-tab-panel="harmonies">
+                        <div class="palette-container">
+                            <div class="color-header">
+                                <h3 class="color-title">Color Harmonies</h3>
+                                <div class="btn-group">
+                                    <button id="copy-harmonies" class="btn btn-secondary" aria-label="Copy all harmonies">
+                                        <div class="btn-content">
+                                            <div class="btn-icon">
+                                                <i data-lucide="clipboard-copy"></i>
+                                            </div>
+                                            <span>Copy All</span>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="color-harmony">
+                                <div class="color-header">
+                                    <h4>Complementary</h4>
+                                </div>
+                                <div id="complementary-harmony" class="harmony-row"></div>
+                            </div>
+                            <div class="color-harmony">
+                                <div class="color-header">
+                                    <h4>Triadic</h4>
+                                </div>
+                                <div id="triadic-harmony" class="harmony-row"></div>
+                            </div>
+                            <div class="color-harmony">
+                                <div class="color-header">
+                                    <h4>Analogous</h4>
+                                </div>
+                                <div id="analogous-harmony" class="harmony-row"></div>
+                            </div>
+                            <div class="color-harmony">
+                                <div class="color-header">
+                                    <h4>Monochromatic</h4>
+                                </div>
+                                <div id="monochromatic-harmony" class="harmony-row"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-panel" data-tab-panel="details">
+                        <div class="palette-container">
+                            <div class="color-header">
+                                <h3 class="color-title">Color Details</h3>
+                            </div>
+                            <div id="color-details" class="color-details">
+                                <div class="color-detail-row">
+                                    <div class="color-detail-label">
+                                        <i data-lucide="hash"></i>
+                                        <span>Hex</span>
+                                    </div>
+                                    <div id="detail-hex" class="color-detail-value">#FFFFFF</div>
+                                </div>
+                                <div class="color-detail-row">
+                                    <div class="color-detail-label">
+                                        <i data-lucide="layers"></i>
+                                        <span>RGB</span>
+                                    </div>
+                                    <div id="detail-rgb" class="color-detail-value">rgb(255, 255, 255)</div>
+                                </div>
+                                <div class="color-detail-row">
+                                    <div class="color-detail-label">
+                                        <i data-lucide="palette"></i>
+                                        <span>HSL</span>
+                                    </div>
+                                    <div id="detail-hsl" class="color-detail-value">hsl(0, 0%, 100%)</div>
+                                </div>
+                                <div class="color-detail-row">
+                                    <div class="color-detail-label">
+                                        <i data-lucide="droplets"></i>
+                                        <span>CMYK</span>
+                                    </div>
+                                    <div id="detail-cmyk" class="color-detail-value">cmyk(0%, 0%, 0%, 0%)</div>
+                                </div>
+                                <div class="color-detail-row">
+                                    <div class="color-detail-label">
+                                        <i data-lucide="bookmark"></i>
+                                        <span>Name</span>
+                                    </div>
+                                    <div id="detail-name" class="color-detail-value">White</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-panel" data-tab-panel="export">
+                        <div class="palette-container">
+                            <div class="color-header">
+                                <h3 class="color-title">Export Options</h3>
+                            </div>
+                            <div class="export-container">
+                                <div class="export-methods">
+                                    <button class="option-button active" data-export="css">CSS Variables</button>
+                                    <button class="option-button" data-export="scss">SCSS Variables</button>
+                                    <button class="option-button" data-export="json">JSON</button>
+                                    <button class="option-button" data-export="tailwind">Tailwind Config</button>
+                                    <button class="option-button" data-export="svg">SVG Swatches</button>
+                                </div>
+                                <div id="export-preview" class="export-preview">
+                                    <code>/* Select an export format above */</code>
+                                </div>
+                                <button id="copy-export" class="btn btn-secondary" style="margin-top: 1rem;">
+                                    <div class="btn-content">
+                                        <div class="btn-icon">
+                                            <i data-lucide="clipboard-copy"></i>
+                                        </div>
+                                        <span>Copy 2 Clipboard</span>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>HexIt by Sahasyy &copy; 2025 - The color extraction tool</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
